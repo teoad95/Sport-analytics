@@ -14,6 +14,15 @@ cap = cv2.VideoCapture(video_filepath)
 if (cap.isOpened()== False): 
   print("Error opening video stream or file")
 
+# Default resolutions of the frame are obtained.The default resolutions are system dependent.
+# We convert the resolutions from float to integer.
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+
+# Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
+out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
+
+
 # Read until video is completed
 while(cap.isOpened()):
   # Capture frame-by-frame
@@ -22,7 +31,7 @@ while(cap.isOpened()):
 
     cv2_img = frame[:, :, ::-1]  # OpenCV image (BGR to RGB)  
     # inference
-    results = model(cv2_img, size=640)  # includes NMS
+    results = model(cv2_img, size=320)  # includes NMS
     boxes = results.pandas().xyxy[0]
 
     # plot bounding boxes
@@ -30,6 +39,9 @@ while(cap.isOpened()):
     # Display the resulting frame
     cv2.imshow('Frame',cv2_img_bb)
 
+    # Write the frame into the file 'output.avi'
+    #out.write(cv2_img_bb)
+    
     # Press Q on keyboard to  exit
     if cv2.waitKey(30) & 0xFF == ord('q'):
       break
@@ -40,6 +52,7 @@ while(cap.isOpened()):
 
 # When everything done, release the video capture object
 cap.release()
+out.release()
 
 # Closes all the frames
 cv2.destroyAllWindows()
