@@ -5,14 +5,14 @@ import os
 
 color = (255, 150, 0)
 
-def plot_bb_on_img(cv2_img, boxes):
+def plot_bb_on_img(cv2_img, boxes, tolerance = 0.5):
 
     cv2_img_bb = np.array(cv2_img) 
     
     # Convert RGB to BGR 
     cv2_img_bb = cv2.cvtColor(cv2_img_bb, cv2.COLOR_BGR2RGB) 
-    for i in range(len(boxes)):
-        if (boxes['confidence'][i] > 0.6): # filter predictions
+    for i, _ in boxes.iterrows():
+        if (boxes['confidence'][i] > tolerance): # filter predictions
             # extract the bounding box coordinates
             (x, y) = (int(boxes['xmin'][i]), int(boxes['ymin'][i]))
             (w, h) = (int(boxes['xmax'][i]-boxes['xmin'][i]), int(boxes['ymax'][i]-boxes['ymin'][i]))
