@@ -1,7 +1,11 @@
 import cv2
 import torch
 from PIL import Image
-from util_funs import plot_bb_on_img
+from util_funs import plot_bb_on_img, split_image_and_predict
+
+
+SINGLE_FRAME_INFER = False
+
 
 # Model
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
@@ -29,13 +33,21 @@ while(cap.isOpened()):
   ret, frame = cap.read()
   if ret == True:
 
-    cv2_img = frame[:, :, ::-1]  # OpenCV image (BGR to RGB)  
-    # inference
-    results = model(cv2_img, size=320)  # includes NMS
-    boxes = results.pandas().xyxy[0]
+    cv2_img = frame[:, :, ::-1]  # OpenCV image (BGR to RGB) 
 
+
+    # inference
+    if SINGLE_FRAME_INFER:
+      results = model(cv2_img, size=320)  # includes NMS
+      boxes = results.pandas().xyxy[0]
+    else:
+      boxes =  split_image_and_predict(cv2_img, model)
+
+      
     # plot bounding boxes
     cv2_img_bb = plot_bb_on_img(cv2_img, boxes, tolerance=0.3)
+
+    
     # Display the resulting frame
     cv2.imshow('Frame',cv2_img_bb)
 
