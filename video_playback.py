@@ -10,7 +10,7 @@ SINGLE_FRAME_INFER = False
 # Model
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 
-video_filepath = './Videos/video1.mp4'
+video_filepath = './Videos/short2.mp4'
 
 cap = cv2.VideoCapture(video_filepath)
 
@@ -43,7 +43,7 @@ while(cap.isOpened()):
     else:
       boxes =  split_image_and_predict(cv2_img, model)
 
-      
+
     # plot bounding boxes
     cv2_img_bb = plot_bb_on_img(cv2_img, boxes, tolerance=0.3)
 
