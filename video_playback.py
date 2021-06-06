@@ -35,7 +35,7 @@ while(cap.isOpened()):
     boxes = results.pandas().xyxy[0]
 
     # plot bounding boxes
-    cv2_img_bb = plot_bb_on_img(cv2_img, boxes)
+    cv2_img_bb = plot_bb_on_img(cv2_img, boxes, tolerance=0.3)
     # Display the resulting frame
     cv2.imshow('Frame',cv2_img_bb)
 
