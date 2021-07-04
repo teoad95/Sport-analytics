@@ -96,3 +96,11 @@ def split_image_and_predict(img, model, step_size=64, window_size=(256,256)):
     boxes_df = keep_unique_objects_df(boxes_df)
 
     return boxes_df
+
+def extract_color_histogram(image, bins=(8, 8, 8)):
+	# extract a 3D color histogram from the HSV color space using
+	# the supplied number of `bins` per channel
+	hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+	hist = cv2.calcHist([hsv], [0, 1, 2], None, bins,
+		[0, 180, 0, 256, 0, 256])
+	return hist.flatten()
