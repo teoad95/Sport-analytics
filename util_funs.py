@@ -97,10 +97,12 @@ def split_image_and_predict(img, model, step_size=64, window_size=(256,256)):
 
     return boxes_df
 
-def extract_color_histogram(image, bins=(8, 8, 8)):
-	# extract a 3D color histogram from the HSV color space using
-	# the supplied number of `bins` per channel
-	hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-	hist = cv2.calcHist([hsv], [0, 1, 2], None, bins,
-		[0, 180, 0, 256, 0, 256])
-	return hist.flatten()
+def extract_average_color(img):
+    # calculate the average color of each row of our image
+    avg_color_per_row = np.average(img, axis=0)
+
+    # calculate the averages of our rows
+    avg_colors = np.average(avg_color_per_row, axis=0)
+    # so, convert that array to integers
+    int_averages = np.array(avg_colors, dtype=np.uint8)
+    return int_averages
