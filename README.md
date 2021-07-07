@@ -54,3 +54,5 @@ For:
 [3] [YOLO digit detector](https://github.com/penny4860/Yolo-digit-detector)
 
 [4] [Pix2Pix Pytorch](https://github.com/mrzhu-cool/pix2pix-pytorch)
+
+[5] [Finding the dominant colors of an image](https://www.timpoulsen.com/2018/finding-the-dominant-colors-of-an-image.html)
