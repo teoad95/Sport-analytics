@@ -20,7 +20,7 @@ __model = model()
 __features_to_train_Kmeans = []
 __clusters = KMeans(2, random_state = 40)
 
-def get_frame_with_predictions(image, kmeans_trained):
+def get_frame_with_predictions(image):
     cv2_img_bb = np.array(image) 
     # Convert RGB to BGR 
     cv2_img_bb = cv2.cvtColor(cv2_img_bb, cv2.COLOR_BGR2RGB) 
@@ -91,6 +91,7 @@ def add_Kmeans_features(image):
         # extract from box only the object for classification
         object = cv2.bitwise_and(object_of_image, object_of_image, mask = visMask)
         __features_to_train_Kmeans.append(extract_average_color(object))
+    return len(__features_to_train_Kmeans) > 100
 
 def train_Kmeans():
     __clusters.fit(__features_to_train_Kmeans)

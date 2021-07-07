@@ -1,7 +1,7 @@
 import cv2
 from model import get_frame_with_predictions, add_Kmeans_features, train_Kmeans
 
-video_filepath = './Videos/video1.mp4'
+video_filepath = './Videos/short2.mp4'
 
 cap = cv2.VideoCapture(video_filepath)
 
@@ -24,8 +24,11 @@ while(cap.isOpened()):
   ret, frame = cap.read()
   if ret == True:
     cv2_img = frame[:, :, ::-1]  # OpenCV image (BGR to RGB) 
-    add_Kmeans_features(cv2_img)
+    ready_to_train_KMeans = add_Kmeans_features(cv2_img)
   else: 
+    break
+  if (ready_to_train_KMeans):
+    print('Ready to train KMEANS')
     break
 print('Finished getting data for KMEANS')
 try:

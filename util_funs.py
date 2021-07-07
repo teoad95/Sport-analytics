@@ -4,6 +4,10 @@ import os
 from PIL import Image
 import math
 import pandas as pd
+import urllib
+from pytube import YouTube
+from sklearn.cluster import KMeans
+import glob
 
 
 color = (255, 150, 0)
@@ -90,7 +94,6 @@ def split_image_and_predict(img, model, step_size=64, window_size=(256,256)):
         boxes['centerx'] = boxes.xmax - (boxes.xmax-boxes.xmin)/2
         boxes['centery'] = boxes.ymax - (boxes.ymax-boxes.ymin)/2
         boxes['distance'] = np.sqrt(boxes.centerx*boxes.centerx + boxes.centery*boxes.centery)
-
         boxes_df = boxes_df.append(boxes, ignore_index=True)
 
     boxes_df = keep_unique_objects_df(boxes_df)
@@ -106,3 +109,90 @@ def extract_average_color(img):
     # so, convert that array to integers
     int_averages = np.array(avg_colors, dtype=np.uint8)
     return int_averages
+
+def download_video(url, path='Videos'):
+    yt = YouTube(url)
+    yt = yt.streams.filter(file_extension='mp4').first()
+    out_file = yt.download(path)
+    file_name = out_file.split("\\")[-1]
+    print(f"Downloaded {file_name}, in location {path} correctly!")
+    return file_name
+
+def get_video_name(video_name_with_location):
+    p = video_name_with_location.split("/")
+    return p[-1].replace(".mp4", "")
+
+def extract_images_from_video(video):    
+    vidcap = cv2.VideoCapture('.//Videos//' + video)
+    count = 0
+
+    path = os.getcwd() + '/Images'
+    if not os.path.exists(path):
+        os.mkdir(path)
+    path = path + '/' + get_video_name(video)
+    if not os.path.exists(path):
+        os.mkdir(path)
+        
+    def getFrame(sec):
+        vidcap.set(cv2.CAP_PROP_POS_MSEC,sec*1000)
+        hasFrames,image = vidcap.read()
+        if hasFrames:
+            write = cv2.imwrite(path + "/frame"+str(count)+".jpg", image)     # save frame as JPG file
+        return hasFrames
+    sec = 2
+    frameRate = 2 #//it will capture image in each 0.5 second
+    success = getFrame(sec)
+    while success:
+        count = count + 1
+        sec = sec + frameRate
+        sec = round(sec, 2)
+        success = getFrame(sec)
+
+def get_frames_from_youtube_video(video_url):
+    video = download_video(video_url)
+    extract_images_from_video(video)
+    os.remove(video)
+    
+def extract_average_color(img):
+    # calculate the average color of each row of our image
+    avg_color_per_row = np.average(img, axis=0)
+
+    # calculate the averages of our rows
+    avg_colors = np.average(avg_color_per_row, axis=0)
+    # so, convert that array to integers
+    int_averages = np.array(avg_colors, dtype=np.uint8)
+    return int_averages
+
+def classify_players(img, boxes):
+    players = []
+    boxes.assign(Name='image')
+    for i, b in boxes.iterrows():
+        #boxes.insert(i, 'image', res_bgr[int(b['ymin']):int(b['ymax']), int(b['xmin']):int(b['xmax'])])
+        players.append(img[int(b['ymin']):int(b['ymax']), int(b['xmin']):int(b['xmax'])])
+    boxes['image'] = players
+    features = []
+    features = [extract_average_color(b.image) for i,b in boxes.iterrows()]
+    clusters = KMeans(2, random_state= 40)
+    clustering_results = clusters.fit_predict(features)
+    boxes['team'] = clustering_results
+    return boxes
+
+def plot_bb_on_img_with_teams(cv2_img, boxes, tolerance = 0.5):
+
+    cv2_img_bb = np.array(cv2_img) 
+    
+    # Convert RGB to BGR 
+    cv2_img_bb = cv2.cvtColor(cv2_img_bb, cv2.COLOR_BGR2RGB) 
+    for i, _ in boxes.iterrows():
+        if (boxes['confidence'][i] > tolerance): # filter predictions
+            # extract the bounding box coordinates
+            (x, y) = (int(boxes['xmin'][i]), int(boxes['ymin'][i]))
+            (w, h) = (int(boxes['xmax'][i]-boxes['xmin'][i]), int(boxes['ymax'][i]-boxes['ymin'][i]))
+            color = (255,0,0)
+            if (boxes['team'][i] == 1):
+                color = (0,255,0)
+            cv2.rectangle(cv2_img_bb, (x, y), (x + w, y + h), color, 2)
+            text = "{}: {:.4f}".format(boxes['name'][i], boxes['confidence'][i])
+            cv2.putText(cv2_img_bb, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
+                0.5, color, 2)
+    return cv2_img_bb

@@ -1,7 +1,7 @@
 import cv2
 import torch
 from PIL import Image
-from util_funs import plot_bb_on_img, split_image_and_predict
+from util_funs import plot_bb_on_img_with_teams, split_image_and_predict, classify_players
 
 
 SINGLE_FRAME_INFER = False
@@ -24,9 +24,9 @@ frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))
 
 # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
-out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
+out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (frame_width,frame_height))
 
-
+print('started making video')
 # Read until video is completed
 while(cap.isOpened()):
   # Capture frame-by-frame
@@ -43,16 +43,16 @@ while(cap.isOpened()):
     else:
       boxes =  split_image_and_predict(cv2_img, model)
 
-
+    boxes = classify_players(cv2_img, boxes)
     # plot bounding boxes
-    cv2_img_bb = plot_bb_on_img(cv2_img, boxes, tolerance=0.3)
+    cv2_img_bb = plot_bb_on_img_with_teams(cv2_img, boxes)
 
     
     # Display the resulting frame
-    cv2.imshow('Frame',cv2_img_bb)
+    # cv2.imshow('Frame',cv2_img_bb)
 
     # Write the frame into the file 'output.avi'
-    #out.write(cv2_img_bb)
+    out.write(cv2_img_bb)
     
     # Press Q on keyboard to  exit
     if cv2.waitKey(30) & 0xFF == ord('q'):
@@ -62,6 +62,7 @@ while(cap.isOpened()):
   else: 
     break
 
+print('finished making video')
 # When everything done, release the video capture object
 cap.release()
 out.release()
