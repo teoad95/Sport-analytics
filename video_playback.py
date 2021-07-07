@@ -4,7 +4,7 @@ from PIL import Image
 from util_funs import plot_bb_on_img_with_teams, split_image_and_predict, classify_players
 
 
-SINGLE_FRAME_INFER = False
+SINGLE_FRAME_INFER = True
 
 
 # Model
@@ -24,7 +24,7 @@ frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))
 
 # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
-out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (frame_width,frame_height))
+out = cv2.VideoWriter('output_new.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (frame_width,frame_height))
 
 print('started making video')
 # Read until video is completed
@@ -41,11 +41,11 @@ while(cap.isOpened()):
       results = model(cv2_img, size=320)  # includes NMS
       boxes = results.pandas().xyxy[0]
     else:
-      boxes =  split_image_and_predict(cv2_img, model)
+      boxes =  split_image_and_predict(cv2_img, model,epsilon=0.5)
 
     boxes = classify_players(cv2_img, boxes)
     # plot bounding boxes
-    cv2_img_bb = plot_bb_on_img_with_teams(cv2_img, boxes)
+    cv2_img_bb = plot_bb_on_img_with_teams(cv2_img, boxes, show_text=False)
 
     
     # Display the resulting frame
