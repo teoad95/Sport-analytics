@@ -12,7 +12,7 @@ import glob
 
 color = (255, 150, 0)
 
-def plot_bb_on_img(cv2_img, boxes, tolerance = 0.5):
+def plot_bb_on_img(cv2_img, boxes, tolerance = 0.5, show_text=True):
 
     cv2_img_bb = np.array(cv2_img) 
     
@@ -25,7 +25,10 @@ def plot_bb_on_img(cv2_img, boxes, tolerance = 0.5):
             (w, h) = (int(boxes['xmax'][i]-boxes['xmin'][i]), int(boxes['ymax'][i]-boxes['ymin'][i]))
 
             cv2.rectangle(cv2_img_bb, (x, y), (x + w, y + h), color, 2)
-            text = "{}: {:.4f}".format(boxes['name'][i], boxes['confidence'][i])
+            if show_text:
+                text = "{}: {:.4f}".format(boxes['name'][i], boxes['confidence'][i])
+            else:
+                text = ""
             cv2.putText(cv2_img_bb, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                 0.5, color, 2)
     return cv2_img_bb
@@ -46,6 +49,7 @@ def sliding_window(img, step_size, window_size):
 #     img = Image.open(input_file)
     
     img_width, img_height = img.size
+    
     for y in range(0, img_height, step_size):
         for x in range(0, img_width, step_size):
             box = (x, y, x+window_size[0], y+window_size[1])
@@ -55,7 +59,7 @@ def sliding_window(img, step_size, window_size):
                 
 # *to change* 
 # check if objects already detected before adding it to list
-def keep_unique_objects_df(boxes_df, epsilon=2):
+def keep_unique_objects_df(boxes_df, epsilon):
     ## Remove duplicate objects ##    
     distances = boxes_df.distance.to_list()
 
@@ -72,7 +76,7 @@ def keep_unique_objects_df(boxes_df, epsilon=2):
     return boxes_df
 
 
-def split_image_and_predict(img, model, step_size=64, window_size=(256,256)):
+def split_image_and_predict(img, model, step_size=64, window_size=(256,256), epsilon=2):
     
     img = Image.fromarray(img[:,:,::-1])
     
@@ -96,7 +100,7 @@ def split_image_and_predict(img, model, step_size=64, window_size=(256,256)):
         boxes['distance'] = np.sqrt(boxes.centerx*boxes.centerx + boxes.centery*boxes.centery)
         boxes_df = boxes_df.append(boxes, ignore_index=True)
 
-    boxes_df = keep_unique_objects_df(boxes_df)
+    boxes_df = keep_unique_objects_df(boxes_df,epsilon)
 
     return boxes_df
 
