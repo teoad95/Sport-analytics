@@ -45,7 +45,7 @@ For:
 - Video mapping into 2D football court, used [FIFA 2014 World Cup Dataset](http://www.cs.toronto.edu/~namdar/data/soccer_data.tar.gz)
 - Detect player's number in jersey, used [SVHN Dataset](http://ufldl.stanford.edu/housenumbers/)
 
-### Datasets
+### Files
 For:
 - Main notebook check [Football_analytics](https://nbviewer.jupyter.org/github/teoad95/Sport-analytics/blob/main/Football_analytics.ipynb).
 - Number's detection check try check [Detect_numbers](https://nbviewer.jupyter.org/github/teoad95/Sport-analytics/blob/main/Detect_numbers.ipynb).
