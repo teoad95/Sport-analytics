@@ -167,7 +167,11 @@ def extract_average_color(img):
     int_averages = np.array(avg_colors, dtype=np.uint8)
     return int_averages
 
+kmeans_trained = False
+clusters = KMeans(2, random_state= 40)
+
 def classify_players(img, boxes):
+    global kmeans_trained
     players = []
     boxes.assign(Name='image')
     for i, b in boxes.iterrows():
@@ -176,12 +180,15 @@ def classify_players(img, boxes):
     boxes['image'] = players
     features = []
     features = [extract_average_color(b.image) for i,b in boxes.iterrows()]
-    clusters = KMeans(2, random_state= 40)
-    clustering_results = clusters.fit_predict(features)
+    if (not kmeans_trained):
+        clustering_results = clusters.fit_predict(features)
+        kmeans_trained = True
+    else:
+        clustering_results = clusters.predict(features)
     boxes['team'] = clustering_results
     return boxes
 
-def plot_bb_on_img_with_teams(cv2_img, boxes, tolerance = 0.5), show_text=True:
+def plot_bb_on_img_with_teams(cv2_img, boxes, tolerance = 0.5, show_text=True):
 
     cv2_img_bb = np.array(cv2_img) 
     
