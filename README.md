@@ -10,7 +10,7 @@ Develop an AI solution for sport analytics (football), which will:
   - using machine learning techniques
 - Detect player's number in jersey (not done)
   - used pre-trained yolo model in SVHN dataset
-- Video mapping into 2D football court (not done)
+- Image mapping into 2D football court (not done)
   - Generate dataset with frame - homography map
     - Generate database of homography maps, by zooming, tilting, etc.
   - Train GAN network to generate edge map images given frame input
