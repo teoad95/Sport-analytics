@@ -49,7 +49,7 @@ def sliding_window(img, step_size, window_size):
 #     img = Image.open(input_file)
     
     img_width, img_height = img.size
-    
+
     for y in range(0, img_height, step_size):
         for x in range(0, img_width, step_size):
             box = (x, y, x+window_size[0], y+window_size[1])
@@ -181,7 +181,7 @@ def classify_players(img, boxes):
     boxes['team'] = clustering_results
     return boxes
 
-def plot_bb_on_img_with_teams(cv2_img, boxes, tolerance = 0.5):
+def plot_bb_on_img_with_teams(cv2_img, boxes, tolerance = 0.5), show_text=True:
 
     cv2_img_bb = np.array(cv2_img) 
     
@@ -196,7 +196,10 @@ def plot_bb_on_img_with_teams(cv2_img, boxes, tolerance = 0.5):
             if (boxes['team'][i] == 1):
                 color = (0,255,0)
             cv2.rectangle(cv2_img_bb, (x, y), (x + w, y + h), color, 2)
-            text = "{}: {:.4f}".format(boxes['name'][i], boxes['confidence'][i])
+            if show_text:
+                text = "{}: {:.4f}".format(boxes['name'][i], boxes['confidence'][i])
+            else:
+                text = ""
             cv2.putText(cv2_img_bb, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,
                 0.5, color, 2)
     return cv2_img_bb
